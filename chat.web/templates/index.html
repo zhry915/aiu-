@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Gemini Chat</title>
+<style>
+    body { font-family: Arial; padding: 20px; }
+    #chatbox { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: auto; padding: 10px; }
+    input { width: 80%; padding: 8px; }
+    button { padding: 8px; }
+</style>
+</head>
+<body>
+
+<h2>Gemini Chat</h2>
+<div id="chatbox"></div>
+<br>
+<form id="chatForm">
+    <input type="text" id="user_input" placeholder="请输入内容" required>
+    <button type="submit">发送</button>
+</form>
+
+<script>
+const chatForm = document.getElementById("chatForm");
+const chatbox = document.getElementById("chatbox");
+
+chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userInput = document.getElementById("user_input").value;
+    chatbox.innerHTML += `<div><b>你:</b> ${userInput}</div>`;
+    document.getElementById("user_input").value = "";
+
+    try {
+        const res = await fetch("/chat", {
+            method: "POST",
+            body: new URLSearchParams({user_input: userInput})
+        });
+        const data = await res.json();
+        if (data.response) {
+            chatbox.innerHTML += `<div><b>AI:</b> ${data.response}</div>`;
+        } else {
+            chatbox.innerHTML += `<div style="color:red;"><b>AI:</b> ${data.error}</div>`;
+        }
+        chatbox.scrollTop = chatbox.scrollHeight;
+    } catch (err) {
+        chatbox.innerHTML += `<div style="color:red;"><b>错误:</b> ${err}</div>`;
+    }
+});
+</script>
+
+</body>
+</html>
+
+
